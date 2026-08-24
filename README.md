@@ -106,15 +106,20 @@ npm run dev
 
 ## Environment Variables
 
-Create a `.env` file in the backend folder based on `.env.example`.
+Copy the root `.env.example` to `.env` for a local configuration. The backend also accepts a `backend/.env` file for backward-compatible local development.
 
 ```env
-OPENAI_API_KEY=
 DATABASE_URL=sqlite:///./recoverai.db
 APP_ENV=development
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:5176,http://127.0.0.1:5176
+VITE_API_BASE_URL=
 ```
 
-If `OPENAI_API_KEY` is present, the app may optionally enrich the response with natural language explanation. If it is absent, the demo still works using the deterministic local AI engine.
+`DATABASE_URL` may use a managed PostgreSQL database in production (for example `postgresql+psycopg://...`). Leave `VITE_API_BASE_URL` blank on Vercel to use same-origin `/api` routes.
+
+## Vercel Deployment
+
+Vercel builds the existing Vite client from `frontend/` and serves the existing FastAPI application through `api/index.py`. Set `DATABASE_URL` to a persistent PostgreSQL connection string before deploying; local SQLite files are not durable on serverless deployments. Set `CORS_ORIGINS` only if the frontend is hosted separately.
 
 ## API Documentation
 

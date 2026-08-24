@@ -6,7 +6,12 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./recoverai.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# SQLite needs this flag for local FastAPI threads; managed PostgreSQL must not
+# receive SQLite-specific connection options.
+engine_options = {"pool_pre_ping": True}
+if DATABASE_URL.startswith("sqlite"):
+    engine_options["connect_args"] = {"check_same_thread": False}
+engine = create_engine(DATABASE_URL, **engine_options)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -20,7 +25,7 @@ def get_db():
 
 
 def init_db():
-    from app.models import AuditLog, Incident, RecoveryAction, Settings, Transaction
+    from app.models import AdminProfile, AuditLog, Incident, RecoveryAction, Settings, Transaction
 
     Base.metadata.create_all(bind=engine)
     
@@ -41,5 +46,20 @@ def init_db():
             )
             db.add(settings)
             db.commit()
+        profile = db.query(AdminProfile).first()
+        if not profile:
+            db.add(AdminProfile(full_name="Vedant Aher", email="vedantaher2003@gmail.com"))
+            db.commit()
+        elif profile.full_name == "RecoverAI Administrator" and profile.email == "admin@recoverai.demo":
+            # Migrate the prior seeded demo identity without touching user-edited profiles.
+            profile.full_name = "Vedant Aher"
+            profile.email = "vedantaher2003@gmail.com"
+            db.commit()
+        # Fresh installs are immediately demo-ready without manual seeding.
+        if db.query(Transaction).count() < 5000:
+            from scripts.generate_data import generate_transactions, seed_incidents, seed_recovery_actions
+            generate_transactions(db)
+            seed_incidents(db)
+            seed_recovery_actions(db)
     finally:
         db.close()

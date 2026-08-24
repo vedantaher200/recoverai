@@ -85,3 +85,12 @@ class Settings(Base):
     human_approval_required = Column(Boolean, default=True)
     notification_email = Column(String, default="ops@demo-commerce.com")
     ai_provider = Column(String, default="Local Deterministic Engine")
+
+class AdminProfile(Base):
+    __tablename__ = "admin_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, default="Vedant Aher", nullable=False)
+    email = Column(String, default="vedantaher2003@gmail.com", nullable=False)
+    notification_preference = Column(String, default="Email and in-app", nullable=False)
+    last_login = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
