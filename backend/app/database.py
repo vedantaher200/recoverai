@@ -4,6 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import NullPool
 
 load_dotenv()
 
@@ -37,6 +38,10 @@ DATABASE_URL = _database_url()
 engine_options = {"pool_pre_ping": True}
 if DATABASE_URL.startswith("sqlite"):
     engine_options["connect_args"] = {"check_same_thread": False}
+elif os.getenv("VERCEL"):
+    # A serverless instance should not retain its own connection pool. Neon’s
+    # pooled endpoint manages PostgreSQL connections across Vercel instances.
+    engine_options["poolclass"] = NullPool
 engine = create_engine(DATABASE_URL, **engine_options)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
