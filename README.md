@@ -123,7 +123,7 @@ The included `vercel.json` installs and builds the Vite client from `frontend/` 
 
 1. Push this repository to GitHub and import it in Vercel. Keep the Vercel project root at the repository root.
 2. Create or connect a persistent PostgreSQL database (Vercel Postgres or another managed provider).
-3. In **Settings → Environment Variables**, add `DATABASE_URL` with its connection string. If using Vercel Postgres, its `POSTGRES_URL` is also detected automatically. Do not set a SQLite URL in Vercel: the function filesystem is ephemeral.
+3. For persistent data, add `DATABASE_URL` with its connection string in **Settings → Environment Variables**. If using Vercel Postgres, its `POSTGRES_URL` is also detected automatically. Without either variable, RecoverAI runs its synthetic demo using a SQLite database in Vercel's temporary function storage; it resets when the instance is replaced.
 4. Optionally set `APP_ENV=production`. Leave `VITE_API_BASE_URL` blank for this single Vercel deployment, since the client uses same-origin `/api` requests.
 5. Deploy. The first API request creates the tables and seeds the synthetic demo data.
 

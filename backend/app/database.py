@@ -1,4 +1,6 @@
 import os
+import tempfile
+from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -13,10 +15,11 @@ def _database_url() -> str:
     url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL")
     if not url:
         if os.getenv("VERCEL"):
-            raise RuntimeError(
-                "DATABASE_URL (or POSTGRES_URL) must be configured on Vercel. "
-                "SQLite files are not persistent in serverless functions."
-            )
+            # Vercel functions may only write to the system temporary directory.
+            # This keeps the synthetic demo usable without external storage; use
+            # DATABASE_URL/POSTGRES_URL for persistence across cold starts.
+            temporary_database = Path(tempfile.gettempdir()) / "recoverai.db"
+            return f"sqlite:///{temporary_database.as_posix()}"
         return "sqlite:///./recoverai.db"
 
     # SQLAlchemy's default PostgreSQL dialect expects psycopg2. The project uses
