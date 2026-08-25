@@ -5,7 +5,30 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./recoverai.db")
+
+def _database_url() -> str:
+    """Return a SQLAlchemy-compatible URL for local and Vercel environments."""
+    # Vercel Postgres exposes POSTGRES_URL. DATABASE_URL takes precedence so any
+    # managed PostgreSQL provider can be used without application changes.
+    url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL")
+    if not url:
+        if os.getenv("VERCEL"):
+            raise RuntimeError(
+                "DATABASE_URL (or POSTGRES_URL) must be configured on Vercel. "
+                "SQLite files are not persistent in serverless functions."
+            )
+        return "sqlite:///./recoverai.db"
+
+    # SQLAlchemy's default PostgreSQL dialect expects psycopg2. The project uses
+    # psycopg v3, so make provider URLs work without asking users to alter them.
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url.removeprefix("postgres://")
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url.removeprefix("postgresql://")
+    return url
+
+
+DATABASE_URL = _database_url()
 # SQLite needs this flag for local FastAPI threads; managed PostgreSQL must not
 # receive SQLite-specific connection options.
 engine_options = {"pool_pre_ping": True}

@@ -119,7 +119,15 @@ VITE_API_BASE_URL=
 
 ## Vercel Deployment
 
-Vercel builds the existing Vite client from `frontend/` and serves the existing FastAPI application through `api/index.py`. Set `DATABASE_URL` to a persistent PostgreSQL connection string before deploying; local SQLite files are not durable on serverless deployments. Set `CORS_ORIGINS` only if the frontend is hosted separately.
+The included `vercel.json` installs and builds the Vite client from `frontend/`, bundles `backend/` with the FastAPI serverless function, and sends `/api/*` requests to `api/index.py`.
+
+1. Push this repository to GitHub and import it in Vercel. Keep the Vercel project root at the repository root.
+2. Create or connect a persistent PostgreSQL database (Vercel Postgres or another managed provider).
+3. In **Settings → Environment Variables**, add `DATABASE_URL` with its connection string. If using Vercel Postgres, its `POSTGRES_URL` is also detected automatically. Do not set a SQLite URL in Vercel: the function filesystem is ephemeral.
+4. Optionally set `APP_ENV=production`. Leave `VITE_API_BASE_URL` blank for this single Vercel deployment, since the client uses same-origin `/api` requests.
+5. Deploy. The first API request creates the tables and seeds the synthetic demo data.
+
+Set `CORS_ORIGINS` only when the frontend is hosted separately from the API. Add the exact frontend origin, for example `https://your-app.vercel.app`.
 
 ## API Documentation
 
