@@ -18,6 +18,8 @@ import {
   CalendarDays,
   ArrowUpRight,
   Clock3,
+  Menu,
+  X,
 } from 'lucide-react';
 import {
   Area,
@@ -72,6 +74,7 @@ function App() {
   const [notifications, setNotifications] = useState([]);
   const [readNotifications, setReadNotifications] = useState(new Set());
   const [openHeaderMenu, setOpenHeaderMenu] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [agentProcessing, setAgentProcessing] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -221,13 +224,22 @@ function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
         <div className="brand-block">
           <div className="brand-mark">R</div>
           <div>
             <strong>RecoverAI</strong><span className="brand-subtitle">AI Recovery Platform</span>
           </div>
         </div>
+        <button
+          className="mobile-nav-toggle"
+          type="button"
+          aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'}
+          aria-expanded={mobileNavOpen}
+          onClick={() => setMobileNavOpen((isOpen) => !isOpen)}
+        >
+          {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
 
         <nav className="nav">
           {navConfig.map((item) => (
@@ -235,6 +247,7 @@ function App() {
               key={item.path}
               to={item.path}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => setMobileNavOpen(false)}
             >
               {item.label}
             </NavLink>

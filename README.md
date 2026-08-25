@@ -2,6 +2,10 @@
 
 RecoverAI is an AI-powered payment revenue recovery platform designed for the Razorpay Buildathon 2026 AI Revenue Recovery track. It detects payment failures, identifies their root causes, estimates revenue at risk, recommends bounded recovery actions, simulates execution safely, and creates a full audit trail.
 
+## Live Demo
+
+Open the deployed dashboard: [recoverai-iota.vercel.app/dashboard](https://recoverai-iota.vercel.app/dashboard)
+
 This implementation uses synthetic payment data and simulated recovery execution only. It does not process real financial transactions or recover real money.
 
 ## Problem Statement
