@@ -119,7 +119,7 @@ VITE_API_BASE_URL=
 
 ## Vercel Deployment
 
-The included `vercel.json` installs and builds the Vite client from `frontend/`, bundles `backend/` with the FastAPI serverless function, and sends `/api/*` requests to `api/index.py`.
+The included `vercel.json` installs and builds the Vite client from `frontend/` and bundles `backend/` with the FastAPI serverless function. Vercel automatically routes `/api/*` to `api/index.py`; no internal API rewrite is needed.
 
 1. Push this repository to GitHub and import it in Vercel. Keep the Vercel project root at the repository root.
 2. Create or connect a persistent PostgreSQL database (Vercel Postgres or another managed provider).
